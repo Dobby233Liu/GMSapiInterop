@@ -1,0 +1,1 @@
+sapi_synthesizer_set_rate(synth, rate)

@@ -1,0 +1,1 @@
+sapi_synthesizer_free(synth)
