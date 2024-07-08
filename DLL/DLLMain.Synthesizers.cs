@@ -31,8 +31,7 @@ partial class DLLMain
             }
             _synthesizers.Clear();
 
-            if (_voiceEnumerator is not null)
-                _voiceEnumerator.Dispose();
+            _voiceEnumerator?.Dispose();
             _voiceEnumerator = null;
         }
         return true;
@@ -88,6 +87,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return -1;
+
             return synthesizer.Volume;
         }
     }
@@ -95,8 +95,10 @@ partial class DLLMain
     [UnmanagedCallersOnly(EntryPoint = "sapi_synthesizer_set_volume", CallConvs = [typeof(CallConvCdecl)])]
     public static GMBoolType SynthesizerSetVolume(SynthId id, GMReal volume) {
         lock (_synthesizersLock) {
-            if (volume < 0 || volume > 100)
+            if (volume < 0 || volume > 100) {
+                DebugPrint(nameof(volume) + " out of range");
                 return GMBool.False;
+            }
 
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
@@ -114,6 +116,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return -1;
+
             return synthesizer.Rate;
         }
     }
@@ -121,8 +124,10 @@ partial class DLLMain
     [UnmanagedCallersOnly(EntryPoint = "sapi_synthesizer_set_rate", CallConvs = [typeof(CallConvCdecl)])]
     public static GMBoolType SynthesizerSetRate(SynthId id, GMReal rate) {
         lock (_synthesizersLock) {
-            if (rate < -10 || rate > 10)
+            if (rate < -10 || rate > 10) {
+                DebugPrint(nameof(rate) + " out of range");
                 return GMBool.False;
+            }
 
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
@@ -140,7 +145,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return -1;
-            // TODO: enum
+
             return (double)synthesizer.State;
         }
     }
@@ -152,6 +157,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return GMBool.False;
+
             synthesizer.Pause();
             return GMBool.True;
         }
@@ -163,6 +169,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return GMBool.False;
+
             synthesizer.Resume();
             return GMBool.True;
         }
@@ -174,6 +181,7 @@ partial class DLLMain
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return GMBool.False;
+
             synthesizer.SpeakAsyncCancelAll();
             synthesizer.Resume();
             return GMBool.True;
@@ -226,8 +234,8 @@ partial class DLLMain
                 DebugPrint("End of voice list");
                 return -1;
             }
-        } catch (Exception e) {
-            DebugPrint("GetNextVoice failed");
+        } catch (Exception e) { // TODO: what can fail here
+            DebugPrint($"GetNextVoice failed ({e.GetType()})");
             DebugPrint(e.Message ?? "");
             DebugPrint(e.StackTrace ?? "");
             return -1;
@@ -254,14 +262,13 @@ partial class DLLMain
 
     [UnmanagedCallersOnly(EntryPoint = "sapi_synthesizer_get_voices_next", CallConvs = [typeof(CallConvCdecl)])]
     public static ObjectId SynthesizerGetVoicesNext() {
-        DebugPrint("get_voices_next called");
         lock (_synthesizersLock) {
             if (_voiceEnumerator is null) {
                 DebugPrint("The voice list is not being enumerated");
                 return -1;
             }
 
-            DebugPrint("NEXT!");
+            DebugPrint("get_voices_next called");
             return GetNextVoice();
         }
     }
