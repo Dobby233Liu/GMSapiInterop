@@ -359,8 +359,7 @@ partial class DLLMain
 
             SynthesisTextFormat inputType = (SynthesisTextFormat)inputTypeRaw;
 
-            DebugPrint(input);
-            DebugPrint(inputType.ToString());
+            DebugPrint($"Speaking text ({inputType}): " + input);
             Prompt prompt = new(input, inputType);
             synthesizer.SpeakAsync(prompt);
             return GMBool.True;
