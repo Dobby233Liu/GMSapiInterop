@@ -330,7 +330,7 @@ partial class DLLMain
             DebugPrint("age: " + age.ToString());
             CultureInfo culture = CultureInfo.CurrentUICulture;
             string? cultureName = Marshal.PtrToStringUTF8(cultureNamePtr);
-            if (cultureName is not null)
+            if (!string.IsNullOrEmpty(cultureName))
                 culture = new CultureInfo(cultureName);
             DebugPrint("culture: " + culture.Name);
 

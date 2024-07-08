@@ -7,20 +7,20 @@ static partial class AsyncEvents
 {
 #pragma warning disable CS8618 // RegisterCallbacks is our init code, kinda
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    internal delegate void PerformAsyncEvent(GMDSMapIdInt map, EventType eventType);
-    internal static PerformAsyncEvent _performAsyncEvent;
+    internal delegate void PerformAsyncEventProc(GMDSMapIdInt map, EventType eventType);
+    internal static PerformAsyncEventProc PerformAsyncEvent;
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 
-    internal delegate GMDSMapIdInt CreateDSMapX(int n);
-    internal static CreateDSMapX _createDSMapX;
+    internal delegate GMDSMapIdInt CreateDSMapXProc(int n, IntPtr varArgs);
+    internal static CreateDSMapXProc CreateDSMapX;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    internal delegate GMReal SetDSMapReal(GMDSMapIdInt map, string key, GMReal value);
-    internal static SetDSMapReal _setDSMapReal;
+    internal delegate GMReal SetDSMapRealProc(GMDSMapIdInt map, string key, GMReal value);
+    internal static SetDSMapRealProc SetDSMapReal;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    internal delegate GMReal SetDSMapString(GMDSMapIdInt map, string key, string value);
-    internal static SetDSMapString _setDSMapString;
+    internal delegate GMReal SetDSMapStringProc(GMDSMapIdInt map, string key, string value);
+    internal static SetDSMapStringProc SetDSMapString;
 #pragma warning restore CS8618
 
     [UnmanagedCallersOnly(EntryPoint = "RegisterCallbacks", CallConvs = [typeof(CallConvCdecl)])]
@@ -28,10 +28,10 @@ static partial class AsyncEvents
         IntPtr performAsyncEvent, IntPtr createDSMapX,
         IntPtr setDSMapReal, IntPtr setDSMapString
     ) {
-        _performAsyncEvent = Marshal.GetDelegateForFunctionPointer<PerformAsyncEvent>(performAsyncEvent);
-        _createDSMapX = Marshal.GetDelegateForFunctionPointer<CreateDSMapX>(createDSMapX);
-        _setDSMapReal = Marshal.GetDelegateForFunctionPointer<SetDSMapReal>(setDSMapReal);
-        _setDSMapString = Marshal.GetDelegateForFunctionPointer<SetDSMapString>(setDSMapString);
+        PerformAsyncEvent = Marshal.GetDelegateForFunctionPointer<PerformAsyncEventProc>(performAsyncEvent);
+        CreateDSMapX = Marshal.GetDelegateForFunctionPointer<CreateDSMapXProc>(createDSMapX);
+        SetDSMapReal = Marshal.GetDelegateForFunctionPointer<SetDSMapRealProc>(setDSMapReal);
+        SetDSMapString = Marshal.GetDelegateForFunctionPointer<SetDSMapStringProc>(setDSMapString);
 
         return GMBool.True;
     }
@@ -41,7 +41,10 @@ public class DSMap {
     internal readonly GMDSMapIdInt _mapPtr;
 
     public DSMap() {
-        _mapPtr = AsyncEvents._createDSMapX(0);
+        // Apparently that if a previously created map was destroyed,
+        // this will take the ID of that
+        _mapPtr = AsyncEvents.CreateDSMapX(0, (nint)null);
+        DLLMain.DebugPrint($"Created DSMap {_mapPtr}");
     }
 
     public DSMap(GMDSMapIdInt map) {
@@ -65,17 +68,17 @@ public class DSMap {
             } else if (value is null) {
                 Set(key, "");
             } else {
-                throw new InvalidOperationException(value.ToString());
+                throw new ArgumentException(value.ToString(), nameof(value));
             }
         }
     }
 
     public bool Set(string key, GMReal value) {
-        return AsyncEvents._setDSMapReal(_mapPtr, key, value) == GMBool.True;
+        return AsyncEvents.SetDSMapReal(_mapPtr, key, value) == GMBool.True;
     }
 
     public bool Set(string key, string value) {
-        return AsyncEvents._setDSMapString(_mapPtr, key, value) == GMBool.True;
+        return AsyncEvents.SetDSMapString(_mapPtr, key, value) == GMBool.True;
     }
 }
 
@@ -97,7 +100,7 @@ static partial class AsyncEvents
         }
 
         public void Perform() {
-            _performAsyncEvent(Map, EventType);
+            PerformAsyncEvent(Map, EventType);
         }
     }
 }

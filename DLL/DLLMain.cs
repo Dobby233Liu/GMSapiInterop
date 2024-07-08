@@ -7,7 +7,7 @@ partial class DLLMain
 {
     private static bool _enableDebugOutput = false;
 
-    private static void DebugPrint(string message) {
+    public static void DebugPrint(string message) {
         if (_enableDebugOutput) {
             Console.WriteLine(message);
         }
