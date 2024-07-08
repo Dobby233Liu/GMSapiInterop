@@ -8,6 +8,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <EnableTrimming>true</EnableTrimming>
     <TrimMode>partial</TrimMode>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
   </PropertyGroup>
 
   <ItemGroup>

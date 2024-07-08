@@ -1,5 +1,5 @@
 gender = get_integer("gender (0=not set, 1=male, 2=female, 3=neutral)", GMSapi_VoiceGender.NotSet)
-age = get_integer("gender (0=not set, 10=child, 15=teen, 30=adult, 65=senior)", GMSapi_VoiceAge.NotSet)
+age = get_integer("age (0=not set, 10=child, 15=teen, 30=adult, 65=senior)", GMSapi_VoiceAge.NotSet)
 culture = get_string("culture", "")
 choice_offset = get_integer("prefer", 0)
 event_user(0)

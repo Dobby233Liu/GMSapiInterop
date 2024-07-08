@@ -293,7 +293,12 @@ partial class DLLMain
             if (synthesizer is null)
                 return GMBool.False;
 
-            synthesizer.SelectVoice(name);
+            try {
+                synthesizer.SelectVoice(name);
+            } catch (ArgumentException e) {
+                DebugPrint(e.Message);
+                return GMBool.False;
+            }
             return GMBool.True;
         }
     }
@@ -301,24 +306,41 @@ partial class DLLMain
     [UnmanagedCallersOnly(EntryPoint = "sapi_synthesizer_select_voice_by_hints", CallConvs = [typeof(CallConvCdecl)])]
     public static GMBoolType SynthesizerSelectVoiceByHints(SynthId id, GenderAndAge genderAndAge, GMReal altChoice, GMU8StrPtr cultureNamePtr) {
         lock (_synthesizersLock) {
+            if (altChoice < 0) {
+                DebugPrint("altChoice smaller than 0 is not allowed");
+                return GMBool.False;
+            }
+
             SpeechSynthesizer? synthesizer = _synthesizers.ElementAtOrDefault(Convert.ToInt32(id));
             if (synthesizer is null)
                 return GMBool.False;
 
+            DebugPrint("selecting voice");
             // pieced together by GML-side sapi_get_gender_and_age_word. thanks YoYo
             VoiceGender gender = (VoiceGender)((int)genderAndAge & 0xFF);
             VoiceAge age = (VoiceAge)((int)genderAndAge >> 8);
             DebugPrint(gender.ToString());
             DebugPrint(age.ToString());
-            CultureInfo culture;
+            CultureInfo? culture;
             string? cultureName = Marshal.PtrToStringUTF8(cultureNamePtr);
             if (string.IsNullOrEmpty(cultureName))
-                culture = CultureInfo.CurrentUICulture;
+                culture = null;
             else
                 culture = new CultureInfo(cultureName);
-            DebugPrint(culture.Name);
+            if (culture is not null)
+                DebugPrint(culture.Name);
+            else
+                DebugPrint("any culture (hopefully)");
 
-            synthesizer.SelectVoiceByHints(gender, age, Convert.ToInt32(altChoice), culture);
+            try {
+                synthesizer.SelectVoiceByHints(gender, age, Convert.ToInt32(altChoice), culture);
+            } catch (ArgumentException e) {
+                DebugPrint($"Invalid '{e.ParamName}' passed");
+                return GMBool.False;
+            } catch (InvalidOperationException e) {
+                DebugPrint(e.Message);
+                return GMBool.False;
+            }
 
             return GMBool.True;
         }
