@@ -203,7 +203,7 @@ partial class DLLMain
             if (synthesizer is null)
                 return -1;
 
-            DebugPrint(synthesizer.Voice.Name);
+            DebugPrint("get_voice called - " + synthesizer.Voice.Name);
             return VoiceToDSMap(synthesizer.Voice);
         }
     }
@@ -319,21 +319,17 @@ partial class DLLMain
             // pieced together by GML-side sapi_get_gender_and_age_word. thanks YoYo
             VoiceGender gender = (VoiceGender)((int)genderAndAge & 0xFF);
             VoiceAge age = (VoiceAge)((int)genderAndAge >> 8);
-            DebugPrint(gender.ToString());
-            DebugPrint(age.ToString());
-            CultureInfo? culture;
+            DebugPrint("gender: " + gender.ToString());
+            DebugPrint("age: " + age.ToString());
+            CultureInfo culture = CultureInfo.CurrentUICulture;
             string? cultureName = Marshal.PtrToStringUTF8(cultureNamePtr);
-            if (string.IsNullOrEmpty(cultureName))
-                culture = null;
-            else
+            if (cultureName is not null)
                 culture = new CultureInfo(cultureName);
-            if (culture is not null)
-                DebugPrint(culture.Name);
-            else
-                DebugPrint("any culture (hopefully)");
+            DebugPrint("culture: " + culture.Name);
 
             try {
                 synthesizer.SelectVoiceByHints(gender, age, Convert.ToInt32(altChoice), culture);
+                DebugPrint("voice is now: " + synthesizer.Voice.Name);
             } catch (ArgumentException e) {
                 DebugPrint($"Invalid '{e.ParamName}' passed");
                 return GMBool.False;

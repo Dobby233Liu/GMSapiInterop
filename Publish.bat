@@ -1,0 +1,1 @@
+@dotnet publish DLL -p:PublishProfile=ToGMExtension

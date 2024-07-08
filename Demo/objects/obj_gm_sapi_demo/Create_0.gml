@@ -5,7 +5,7 @@ synth = sapi_synthesizer_create()
 gender = GMSapi_VoiceGender.Male
 age = GMSapi_VoiceAge.Adult
 culture = "en-US"
-choice_offset = 0
+choice_offset = 1
 voice_name = ""
 event_user(0)
 
