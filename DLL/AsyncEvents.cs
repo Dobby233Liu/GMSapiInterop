@@ -38,13 +38,17 @@ static partial class AsyncEvents
 }
 
 public class DSMap {
+    private static readonly object _creationLock = new();
+
     internal readonly GMDSMapIdInt _mapPtr;
 
     public DSMap() {
-        // Apparently that if a previously created map was destroyed,
-        // this will take the ID of that
-        _mapPtr = AsyncEvents.CreateDSMapX(0, (nint)null);
-        DLLMain.DebugPrint($"Created DSMap {_mapPtr}");
+        lock (_creationLock) {
+            // Apparently that if a previously created map was destroyed,
+            // this will take the ID of that
+            _mapPtr = AsyncEvents.CreateDSMapX(0, (nint)null);
+            DLLMain.DebugPrint($"Created DSMap {_mapPtr}");
+        }
     }
 
     public DSMap(GMDSMapIdInt map) {
