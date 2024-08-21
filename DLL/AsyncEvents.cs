@@ -9,8 +9,8 @@ static partial class AsyncEvents
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate void PerformAsyncEventProc(GMDSMapIdInt map, EventType eventType);
     internal static PerformAsyncEventProc PerformAsyncEvent;
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate GMDSMapIdInt CreateDSMapXProc(int n, IntPtr varArgs);
     internal static CreateDSMapXProc CreateDSMapX;
 
