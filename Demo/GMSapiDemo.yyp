@@ -15,11 +15,13 @@
     {"$GMFolder":"","%Name":"Rooms","folderPath":"folders/Rooms.yy","name":"Rooms","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Scripts","folderPath":"folders/Scripts.yy","name":"Scripts","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
-  "IncludedFiles":[],
+  "IncludedFiles":[
+    {"$GMIncludedFile":"","%Name":"GMSapiInterop.runtimeconfig.json","CopyToMask":64,"filePath":"datafiles","name":"GMSapiInterop.runtimeconfig.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
+  ],
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.6.1.159",
+    "IDEVersion":"2024.6.2.162",
   },
   "name":"GMSapiDemo",
   "resources":[
